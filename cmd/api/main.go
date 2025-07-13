@@ -14,7 +14,7 @@ func main() {
 
 	s := server.New()
 
-	database.Init("localhost:6379")
+	db.Init("localhost:6379")
 
 	fmt.Printf("Listening on port %d\n", port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), s.Handler))
