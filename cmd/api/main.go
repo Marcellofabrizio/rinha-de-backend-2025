@@ -4,18 +4,22 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"rinhabackend/internal/db"
 	"rinhabackend/internal/server"
 )
-
-const port = 42069
 
 func main() {
 
 	s := server.New()
 
-	db.Init("localhost:6379")
+	redisHost := os.Getenv("REDIS_HOST")
+	redisPort := os.Getenv("REDIS_PORT")
 
-	fmt.Printf("Listening on port %d\n", port)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), s.Handler))
+	db.Init(fmt.Sprintf("%s:%s", redisHost, redisPort))
+
+	port := os.Getenv("PORT")
+
+	fmt.Printf("Listening on port %s\n", port)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), s.Handler))
 }
