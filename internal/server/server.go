@@ -6,6 +6,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"rinhabackend/internal/db"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -34,8 +36,9 @@ func RegisterRoutes(mux *http.ServeMux) {
 }
 
 type postPaymentsRequest struct {
-	Amount        float64 `json:"amount"`
-	CorrelationId string  `json:"correlationId"`
+	Amount        float64   `json:"amount"`
+	CorrelationId string    `json:"correlationId"`
+	RequestedAt   time.Time `json:"requestedAt,omitempty"`
 }
 
 func postPayments(w http.ResponseWriter, r *http.Request) {
@@ -65,7 +68,20 @@ func postPayments(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("You are creating a payment"))
+	parsedRequest.RequestedAt = time.Now()
+
+	jsonData, err := json.Marshal(parsedRequest)
+	if err != nil {
+		http.Error(w, "Error storing data", http.StatusInternalServerError)
+		log.Printf("Error storing data: %v", err)
+		return
+	}
+
+	jsonString := string(jsonData)
+
+	db.Client.HSet(db.DbCtx, "payments_map", parsedRequest.CorrelationId, jsonString)
+	w.Header().Add("Location", parsedRequest.CorrelationId)
+	w.WriteHeader(http.StatusCreated)
 }
 
 func isCorrelationIdValid(id string) bool {
