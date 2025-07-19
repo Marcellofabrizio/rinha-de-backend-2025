@@ -35,7 +35,7 @@ func RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /purge-payments", postPurgePayments)
 }
 
-type postPaymentsRequest struct {
+type Payment struct {
 	Amount        float64   `json:"amount"`
 	CorrelationId string    `json:"correlationId"`
 	RequestedAt   time.Time `json:"requestedAt,omitempty"`
@@ -53,7 +53,7 @@ func postPayments(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var parsedRequest postPaymentsRequest
+	var parsedRequest Payment
 
 	if err := json.Unmarshal([]byte(body), &parsedRequest); err != nil {
 		http.Error(w, "Error parsing request body", http.StatusBadRequest)
@@ -79,7 +79,8 @@ func postPayments(w http.ResponseWriter, r *http.Request) {
 
 	jsonString := string(jsonData)
 
-	db.Client.HSet(db.DbCtx, "payments_map", parsedRequest.CorrelationId, jsonString)
+	db.Client.LPush(db.DbCtx, db.PendingQueue, jsonString)
+
 	w.Header().Add("Location", parsedRequest.CorrelationId)
 	w.WriteHeader(http.StatusCreated)
 }
