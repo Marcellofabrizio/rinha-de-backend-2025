@@ -9,9 +9,10 @@ import (
 )
 
 var (
-	Client       *redis.Client
-	DbCtx        = context.Background()
-	PendingQueue = "payments_pending_queue"
+	Client          *redis.Client
+	DbCtx           = context.Background()
+	PendingQueue    = "payments_pending_queue"
+	ProcessingQueue = "payments_processing_queue"
 )
 
 func Init(address string) {
