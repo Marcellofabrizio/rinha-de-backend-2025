@@ -13,10 +13,10 @@ func main() {
 
 	s := server.New()
 
-	redisHost := os.Getenv("REDIS_HOST")
-	redisPort := os.Getenv("REDIS_PORT")
+	dbHost := os.Getenv("REDIS_HOST")
+	dbPort := os.Getenv("REDIS_PORT")
 
-	db.Init(fmt.Sprintf("%s:%s", redisHost, redisPort))
+	db.Init(fmt.Sprintf("%s:%s", dbHost, dbPort))
 
 	port := os.Getenv("PORT")
 

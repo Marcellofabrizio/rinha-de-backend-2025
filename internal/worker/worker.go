@@ -3,7 +3,6 @@ package worker
 import (
 	"encoding/json"
 	"log"
-	"net/http"
 	"rinhabackend/internal/db"
 	"rinhabackend/internal/server"
 	"time"
